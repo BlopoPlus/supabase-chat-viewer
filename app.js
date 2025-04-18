@@ -1,22 +1,61 @@
-// ⚠️ Reemplaza con tus credenciales de Supabase
-const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
-const SUPABASE_KEY = 'tu-api-key-publica';
+const SUPABASE_URL = 'https://wicqioozqcaosvrzjvgt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpY3Fpb296cWNhb3N2cnpqdmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NTEzMTIsImV4cCI6MjA2MDUyNzMxMn0.CgIitZHfZNCieLIWK5b7rWlWXI9kzn2WRcgPiMDpsM4';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function cargarConversaciones() {
+const listaUsuarios = document.getElementById('lista-usuarios');
+const chatContainer = document.getElementById('chat-container');
+const tituloChat = document.getElementById('titulo-chat');
+const buscador = document.getElementById('buscador');
+
+let todasLasConversaciones = [];
+
+async function cargarUsuarios() {
   const { data, error } = await supabase
     .from('conversaciones')
-    .select('*')
-    .order('timestamp', { ascending: true });
+    .select('conversacion_id, autor, mensaje, timestamp')
+    .order('timestamp', { ascending: false });
 
   if (error) {
-    console.error('Error al cargar:', error);
+    console.error(error);
     return;
   }
 
-  const container = document.getElementById('chat-container');
-  container.innerHTML = ''; // limpia antes de cargar
+  // Agrupar por conversacion_id y obtener último mensaje
+  const agrupadas = {};
+  data.forEach(conv => {
+    if (!agrupadas[conv.conversacion_id]) {
+      agrupadas[conv.conversacion_id] = conv;
+    }
+  });
 
+  todasLasConversaciones = Object.values(agrupadas);
+  mostrarListaConversaciones(todasLasConversaciones);
+}
+
+function mostrarListaConversaciones(lista) {
+  listaUsuarios.innerHTML = '';
+  lista.forEach(conv => {
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${conv.conversacion_id.slice(0, 6)}</strong><br>${conv.mensaje.slice(0, 40)}...`;
+    li.addEventListener('click', () => cargarMensajes(conv.conversacion_id));
+    listaUsuarios.appendChild(li);
+  });
+}
+
+async function cargarMensajes(conversacionId) {
+  const { data, error } = await supabase
+    .from('conversaciones')
+    .select('*')
+    .eq('conversacion_id', conversacionId)
+    .order('timestamp', { ascending: true });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  tituloChat.innerText = `Conversación: ${conversacionId.slice(0, 6)}`;
+  chatContainer.innerHTML = '';
   data.forEach(msg => {
     const div = document.createElement('div');
     div.classList.add('message');
@@ -31,8 +70,17 @@ async function cargarConversaciones() {
     });
 
     div.appendChild(hora);
-    container.appendChild(div);
+    chatContainer.appendChild(div);
   });
 }
 
-cargarConversaciones();
+buscador.addEventListener('input', () => {
+  const filtro = buscador.value.toLowerCase();
+  const filtradas = todasLasConversaciones.filter(c =>
+    c.mensaje.toLowerCase().includes(filtro) ||
+    c.conversacion_id.toLowerCase().includes(filtro)
+  );
+  mostrarListaConversaciones(filtradas);
+});
+
+cargarUsuarios();
