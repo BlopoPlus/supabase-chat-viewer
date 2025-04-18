@@ -83,13 +83,11 @@ body {
 
 .bot {
   align-self: flex-start;
-  background-color: #f1f0f0;
+  background-color: #ffffff;
   border-bottom-left-radius: 0;
+  border: 1px solid #ddd;
 }
 
 .time {
-  font-size: 0.75rem;
-  color: gray;
-  text-align: right;
-  margin-top: 5px;
+  display: none;
 }
