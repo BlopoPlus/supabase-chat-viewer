@@ -17,6 +17,7 @@ function limpiarTexto(texto) {
     .replace(/message caption:.*/gi, '')
     .replace(/message type:.*/gi, '')
     .replace(/El usuario envió un mensaje con la siguiente información:/gi, '')
+    .replace(/Texto o descripción del mensaje:/gi, '')
     .trim();
 }
 
@@ -54,9 +55,8 @@ function mostrarListaConversaciones(lista) {
 }
 
 function formatearHoraDesdeID(id) {
-  // Simula una hora según el ID incremental
   const base = new Date();
-  const minutos = (id % 1440); // máx 24h
+  const minutos = (id % 1440); // hasta 24h
   const fecha = new Date(base.getTime() - minutos * 60000);
   return fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 }
@@ -77,19 +77,26 @@ async function cargarMensajes(sessionId) {
   chatContainer.innerHTML = '';
 
   data.forEach(msg => {
-    const tipo = msg.message?.type;
+    const tipo = msg.message?.type; // "ai" o "human"
     const contenido = limpiarTexto(msg.message?.content || '');
 
     if (!contenido) return;
 
     const div = document.createElement('div');
     div.classList.add('message');
-    div.classList.add(tipo === 'human' ? 'user' : 'bot');
+
+    // Estilo WhatsApp correcto
+    if (tipo === 'ai') {
+      div.classList.add('bot'); // verde claro, derecha
+    } else {
+      div.classList.add('user'); // blanco, izquierda
+    }
+
     div.innerText = contenido;
 
     const hora = document.createElement('div');
     hora.classList.add('time');
-    hora.innerText = formatearHoraDesdeID(msg.id); // si luego tienes `created_at`, úsalo acá
+    hora.innerText = formatearHoraDesdeID(msg.id);
 
     div.appendChild(hora);
     chatContainer.appendChild(div);
