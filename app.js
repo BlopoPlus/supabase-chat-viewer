@@ -1,5 +1,6 @@
 const SUPABASE_URL = 'https://wicqioozqcaosvrzjvgt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpY3Fpb296cWNhb3N2cnpqdmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NTEzMTIsImV4cCI6MjA2MDUyNzMxMn0.CgIitZHfZNCieLIWK5b7rWlWXI9kzn2WRcgPiMDpsM4';
+
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const listaUsuarios = document.getElementById('lista-usuarios');
