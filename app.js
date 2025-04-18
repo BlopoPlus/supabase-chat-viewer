@@ -10,6 +10,16 @@ const buscador = document.getElementById('buscador');
 
 let todasLasConversaciones = [];
 
+function limpiarTexto(texto) {
+  if (!texto) return '';
+  return texto
+    .replace(/```/g, '')          // quitar comillas triples
+    .replace(/message caption:.*/gi, '') // quitar línea de caption si viniera
+    .replace(/message type:.*/gi, '')    // quitar línea de tipo si viniera
+    .replace(/El usuario envió un mensaje con la siguiente información:/gi, '')
+    .trim();
+}
+
 async function cargarUsuarios() {
   const { data, error } = await client
     .from('n8n_personalagent_chat_histories')
@@ -35,7 +45,7 @@ async function cargarUsuarios() {
 function mostrarListaConversaciones(lista) {
   listaUsuarios.innerHTML = '';
   lista.forEach(conv => {
-    const contenido = conv.message?.content?.trim() || '(mensaje vacío)';
+    const contenido = limpiarTexto(conv.message?.content || '');
     const li = document.createElement('li');
     li.innerHTML = `<strong>${conv.session_id}</strong><br>${contenido.slice(0, 40)}...`;
     li.addEventListener('click', () => cargarMensajes(conv.session_id));
@@ -59,7 +69,7 @@ async function cargarMensajes(sessionId) {
   chatContainer.innerHTML = '';
   data.forEach(msg => {
     const tipo = msg.message?.type;
-    const contenido = msg.message?.content?.trim() || '(sin contenido)';
+    const contenido = limpiarTexto(msg.message?.content || '');
 
     const div = document.createElement('div');
     div.classList.add('message');
