@@ -13,9 +13,9 @@ let todasLasConversaciones = [];
 function limpiarTexto(texto) {
   if (!texto) return '';
   return texto
-    .replace(/```/g, '')          // quitar comillas triples
-    .replace(/message caption:.*/gi, '') // quitar línea de caption si viniera
-    .replace(/message type:.*/gi, '')    // quitar línea de tipo si viniera
+    .replace(/```/g, '')
+    .replace(/message caption:.*/gi, '')
+    .replace(/message type:.*/gi, '')
     .replace(/El usuario envió un mensaje con la siguiente información:/gi, '')
     .trim();
 }
@@ -53,6 +53,14 @@ function mostrarListaConversaciones(lista) {
   });
 }
 
+function formatearHoraDesdeID(id) {
+  // Simula una hora según el ID incremental
+  const base = new Date();
+  const minutos = (id % 1440); // máx 24h
+  const fecha = new Date(base.getTime() - minutos * 60000);
+  return fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+}
+
 async function cargarMensajes(sessionId) {
   const { data, error } = await client
     .from('n8n_personalagent_chat_histories')
@@ -67,15 +75,23 @@ async function cargarMensajes(sessionId) {
 
   tituloChat.innerText = `Conversación: ${sessionId}`;
   chatContainer.innerHTML = '';
+
   data.forEach(msg => {
     const tipo = msg.message?.type;
     const contenido = limpiarTexto(msg.message?.content || '');
+
+    if (!contenido) return;
 
     const div = document.createElement('div');
     div.classList.add('message');
     div.classList.add(tipo === 'human' ? 'user' : 'bot');
     div.innerText = contenido;
 
+    const hora = document.createElement('div');
+    hora.classList.add('time');
+    hora.innerText = formatearHoraDesdeID(msg.id); // si luego tienes `created_at`, úsalo acá
+
+    div.appendChild(hora);
     chatContainer.appendChild(div);
   });
 }
