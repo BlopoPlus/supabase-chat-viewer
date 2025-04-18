@@ -35,7 +35,7 @@ async function cargarUsuarios() {
 function mostrarListaConversaciones(lista) {
   listaUsuarios.innerHTML = '';
   lista.forEach(conv => {
-    const contenido = conv.message?.content || '';
+    const contenido = conv.message?.content?.trim() || '(mensaje vacío)';
     const li = document.createElement('li');
     li.innerHTML = `<strong>${conv.session_id}</strong><br>${contenido.slice(0, 40)}...`;
     li.addEventListener('click', () => cargarMensajes(conv.session_id));
@@ -59,17 +59,12 @@ async function cargarMensajes(sessionId) {
   chatContainer.innerHTML = '';
   data.forEach(msg => {
     const tipo = msg.message?.type;
-    const contenido = msg.message?.content || '';
+    const contenido = msg.message?.content?.trim() || '(sin contenido)';
 
     const div = document.createElement('div');
     div.classList.add('message');
     div.classList.add(tipo === 'human' ? 'user' : 'bot');
     div.innerText = contenido;
-
-    const hora = document.createElement('div');
-    hora.classList.add('time');
-    hora.innerText = `#${msg.id}`;
-    div.appendChild(hora);
 
     chatContainer.appendChild(div);
   });
