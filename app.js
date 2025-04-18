@@ -12,19 +12,19 @@ let todasLasConversaciones = [];
 async function cargarUsuarios() {
   const { data, error } = await supabase
     .from('n8n_personalagent_chat_histories')
-    .select('conversation_id, role, content, created_at')
-    .order('created_at', { ascending: false });
+    .select('session_id, message, id')
+    .order('id', { ascending: false });
 
   if (error) {
     console.error(error);
     return;
   }
 
-  // Agrupar por conversation_id y obtener el primer mensaje como vista previa
+  // Agrupar por session_id y tomar un mensaje como vista previa
   const agrupadas = {};
   data.forEach(row => {
-    if (!agrupadas[row.conversation_id]) {
-      agrupadas[row.conversation_id] = row;
+    if (!agrupadas[row.session_id]) {
+      agrupadas[row.session_id] = row;
     }
   });
 
@@ -36,40 +36,40 @@ function mostrarListaConversaciones(lista) {
   listaUsuarios.innerHTML = '';
   lista.forEach(conv => {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>${conv.conversation_id.slice(0, 6)}</strong><br>${conv.content.slice(0, 40)}...`;
-    li.addEventListener('click', () => cargarMensajes(conv.conversation_id));
+    li.innerHTML = `<strong>${conv.session_id}</strong><br>${conv.message?.content?.slice(0, 40) || ''}...`;
+    li.addEventListener('click', () => cargarMensajes(conv.session_id));
     listaUsuarios.appendChild(li);
   });
 }
 
-async function cargarMensajes(conversationId) {
+async function cargarMensajes(sessionId) {
   const { data, error } = await supabase
     .from('n8n_personalagent_chat_histories')
-    .select('*')
-    .eq('conversation_id', conversationId)
-    .order('created_at', { ascending: true });
+    .select('message, id')
+    .eq('session_id', sessionId)
+    .order('id', { ascending: true });
 
   if (error) {
     console.error(error);
     return;
   }
 
-  tituloChat.innerText = `Conversación: ${conversationId.slice(0, 6)}`;
+  tituloChat.innerText = `Conversación: ${sessionId}`;
   chatContainer.innerHTML = '';
   data.forEach(msg => {
+    const role = msg.message?.type;
+    const content = msg.message?.content;
+
     const div = document.createElement('div');
     div.classList.add('message');
-    div.classList.add(msg.role === 'user' ? 'user' : 'bot');
-    div.innerText = msg.content;
+    div.classList.add(role === 'human' ? 'user' : 'bot');
+    div.innerText = content || '';
 
     const hora = document.createElement('div');
     hora.classList.add('time');
-    hora.innerText = new Date(msg.created_at).toLocaleTimeString('es-CL', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
+    hora.innerText = `#${msg.id}`; // como no hay timestamp, mostramos el ID
     div.appendChild(hora);
+
     chatContainer.appendChild(div);
   });
 }
@@ -77,8 +77,8 @@ async function cargarMensajes(conversationId) {
 buscador.addEventListener('input', () => {
   const filtro = buscador.value.toLowerCase();
   const filtradas = todasLasConversaciones.filter(c =>
-    c.content.toLowerCase().includes(filtro) ||
-    c.conversation_id.toLowerCase().includes(filtro)
+    c.session_id.toLowerCase().includes(filtro) ||
+    c.message?.content?.toLowerCase().includes(filtro)
   );
   mostrarListaConversaciones(filtradas);
 });
