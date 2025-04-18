@@ -7,8 +7,19 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <h1>Conversaciones WhatsApp</h1>
-  <div id="chat-container"></div>
+  <div id="app">
+    <div id="sidebar">
+      <h2>Conversaciones</h2>
+      <input type="text" id="buscador" placeholder="Buscar..." />
+      <ul id="lista-usuarios"></ul>
+    </div>
+
+    <div id="chat">
+      <h2 id="titulo-chat">Selecciona una conversación</h2>
+      <div id="chat-container"></div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
