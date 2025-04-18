@@ -1,17 +1,60 @@
 body {
-  font-family: "Segoe UI", Roboto, sans-serif;
-  background-color: #e5ddd5;
   margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #e5ddd5;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+#sidebar {
+  width: 30%;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+#sidebar h2 {
+  margin-top: 0;
+}
+
+#buscador {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+#lista-usuarios {
+  list-style: none;
   padding: 0;
 }
 
-#chat-container {
-  max-width: 600px;
-  margin: auto;
-  background-color: #ffffff;
-  min-height: 100vh;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+#lista-usuarios li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+#lista-usuarios li:hover {
+  background-color: #e0e0e0;
+}
+
+#chat {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+#titulo-chat {
+  margin: 0 0 10px 0;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
 }
 
 .message {
